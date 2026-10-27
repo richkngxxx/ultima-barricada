@@ -32,7 +32,7 @@ const WEAPONS=[
  {id:'asalto',name:'Fusil asalto',dmg:15,mag:30,delay:.11,rel:1.9,auto:true,pel:1,spr:3,pierce:1,box:60,col:'#463',snd:[.09,.6,2200]},
  {id:'ametralladora',name:'Ametralladora',dmg:14,mag:100,delay:.06,rel:3.2,auto:true,pel:1,spr:5,pierce:1,box:120,col:'#333',snd:[.07,.6,1800]}];
 const ZT={
- walker:{hp:30,spd:7,w:14,h:34,dmg:4,col:'#5a7',sc:10},
+ walker:{hp:30,spd:11,w:14,h:34,dmg:4,col:'#5a7',sc:10},
  runner:{hp:22,spd:18,w:9,h:30,dmg:3,col:'#8a5',sc:15},
  fat:{hp:120,spd:4.5,w:14,h:30,dmg:10,col:'#6a6',sc:30},
  crawler:{hp:25,spd:9,w:12,h:12,dmg:5,col:'#596',sc:15},
@@ -56,7 +56,7 @@ function startNight(){paused=false;clearDecals();const n=G.night;N={kills:0,head
  if(n%5===0)N.toSpawn.splice(Math.floor(cnt*.6),0,'boss');
  for(let i=0;i<G.surv;i++)N.surv.push({x:[40,140,18,162,65,115][i],cd:rnd(0,1),col:['#4d5a3a','#3c4a5a','#6a5a3a','#5a3a3a','#3a3a3a','#55553a'][i],a:0});
  G.owned.forEach(id=>{if(G.mag[id]==null)G.mag[id]=weapon(id).mag});state='night';SFX.groan()}
-function spawn(t){const z=ZT[t],n=G.night,hpm=1+(n-1)*.09;N.zs.push({t,x:rnd(14,W-14),y:FIELD_TOP+rnd(0,4),hp:z.hp*hpm,max:z.hp*hpm,spd:z.spd*(1+n*.02)*rnd(.85,1.15),
+function spawn(t){const z=ZT[t],n=G.night,hpm=1+(n-1)*.09;N.zs.push({t,x:rnd(14,W-14),y:FIELD_TOP+rnd(0,4),hp:z.hp*hpm,max:z.hp*hpm,spd:z.spd*(1+n*.02)*rnd(.9,1.1),
  w:z.w,h:z.h,s:.6,v:variant(t,ri(0,7)),wounds:[],atk:0,flip:Math.random()<.5?-1:1,ph:rnd(0,6),flash:0,dead:0})}
 function curW(){return weapon(G.owned[N.wi])}
 function reload(){const w=curW();if(N.reloading>0||G.mag[w.id]>=w.mag||G.ammo[w.id]<=0)return;N.reloading=w.rel;SFX.reload()}
@@ -84,7 +84,7 @@ function updNight(dt){if(paused)return;if(N.msgT>0)N.msgT-=dt;
  if(N.cool>0)N.cool-=dt;if(N.reloading>0){N.reloading-=dt;if(N.reloading<=0)finishReload()}
  if(pointer.down&&pointer.y<BAR_Y+4&&!paused){const w=curW();if(w.auto||pointer.fresh){fire(pointer.x,pointer.y);pointer.fresh=false}}
  for(const z of N.zs){if(z.dead)continue;z.s=1.55*(.5+.5*clamp((z.y-FIELD_TOP)/(BAR_Y-FIELD_TOP),0,1));z.ph+=dt*(z.spd/3);z.flash-=dt;
-  if(z.y<BAR_Y-1){z.y+=z.spd*dt;z.x+=Math.sin(z.ph*.7)*dt*2;z.x=clamp(z.x,8,W-8)}else{z.atk-=dt;if(z.atk<=0){z.atk=z.t==='boss'?1.6:1.2;G.bar-=ZT[z.t].dmg;shake=Math.max(shake,ZT[z.t].dmg/4);SFX.bar();
+  if(z.y<BAR_Y-1){z.y+=z.spd*dt*(z.s/1.2);z.x+=Math.sin(z.ph*.7)*dt*2;z.x=clamp(z.x,8,W-8)}else{z.atk-=dt;if(z.atk<=0){z.atk=z.t==='boss'?1.6:1.2;G.bar-=ZT[z.t].dmg;shake=Math.max(shake,ZT[z.t].dmg/4);SFX.bar();
    for(let i=0;i<4;i++)N.parts.push({x:z.x+rnd(-4,4),y:BAR_Y+2,vx:rnd(-30,30),vy:rnd(-40,-5),t:.5,r:rnd(.6,1.2),c:'#8a6236',gy:BAR_Y+rnd(6,14)})}}}
  for(const s of N.surv){s.rec=Math.max(0,(s.rec||0)-dt*6);s.cd-=dt;if(s.cd<=0){s.cd=rnd(.9,1.4);const tg=N.zs.filter(z=>!z.dead).sort((a,b)=>b.y-a.y)[0];
   if(tg){s.rec=1;N.tracers.push({x:tg.x,y:tg.y-tg.h*zsc(tg)/2,t:.05,fx:s.x,fy:BAR_Y+12});noise(.05,.2,2500);if(Math.random()<.75)damage(tg,8+G.night*.4,false,tg.x,tg.y-tg.h*zsc(tg)/2,false)}}}
